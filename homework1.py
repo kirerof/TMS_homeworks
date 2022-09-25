@@ -1,6 +1,24 @@
 import psutil
+import json
 
 
+cpu_info_list = []
+
+
+def decorator(func):
+    """Декоратор для записи результатов работы функций в один файл"""
+    def wrapper():
+        func_result = func()
+        cpu_info_list.append(func_result)
+
+        with open('cpu_information.json', 'w') as file:
+            json.dump(cpu_info_list, file, indent=2)
+
+        return func_result
+    return wrapper
+
+
+@decorator
 def cpu_info():
     result_cpu = {}
     freq_cpu = psutil.cpu_freq()
@@ -23,6 +41,7 @@ def cpu_info():
     return result_cpu
 
 
+@decorator
 def memory_info():
     memory_result = {}
     memory_data = psutil.virtual_memory()
@@ -34,6 +53,7 @@ def memory_info():
     return memory_result
 
 
+@decorator
 def process_info():
     process_result = {}
     process_data = psutil.Process()
@@ -45,6 +65,7 @@ def process_info():
     return process_result
 
 
+@decorator
 def disk_info():
     disk_result = {}
     disk_data = psutil.disk_usage('/')
