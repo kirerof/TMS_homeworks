@@ -4,17 +4,16 @@ from abc import ABC, abstractmethod
 
 class Abstract(ABC):
     @abstractmethod
-    def get_curr_val(self):
+    def _get_curr_val(self):
         ...
 
     @abstractmethod
-    def result_update(self):
+    def _result_update(self, a):
         ...
 
     @abstractmethod
     def get_data(self):
-        self.get_curr_val()
-        self.result_update()
+        self._result_update(self._get_curr_val())
 
 
 class CpuInfo(Abstract):
@@ -26,7 +25,7 @@ class CpuInfo(Abstract):
                     'время, затрачиваемое процессами в режиме ядра: {system_time} с \n'
                     'время простоя: {idle_time} с')
 
-    def get_curr_val(self):
+    def _get_curr_val(self):
         freq_cpu = psutil.cpu_freq()
         count_cpu = psutil.cpu_count()
         percent_cpu = psutil.cpu_percent(interval=1, percpu=True)
@@ -38,13 +37,13 @@ class CpuInfo(Abstract):
 
         return freq_cpu, count_cpu, even_cpu, times_cpu
 
-    def result_update(self):
-        self.result_cpu.update(current_freq=self.get_curr_val()[0].current)
-        self.result_cpu.update(count_cpu=self.get_curr_val()[1])
-        self.result_cpu.update(self.get_curr_val()[2])
-        self.result_cpu.update(user_time=self.get_curr_val()[3].user,
-                               system_time=self.get_curr_val()[3].system,
-                               idle_time=self.get_curr_val()[3].idle)
+    def _result_update(self, getval):
+        self.result_cpu.update(current_freq=getval[0].current)
+        self.result_cpu.update(count_cpu=getval[1])
+        self.result_cpu.update(getval[2])
+        self.result_cpu.update(user_time=getval[3].user,
+                               system_time=getval[3].system,
+                               idle_time=getval[3].idle)
 
     def get_data(self):
         Abstract.get_data(self)
@@ -61,15 +60,15 @@ class MemoryInfo(Abstract):
                        'процент использования памяти:{percent}% \n'
                        'свободная память: {free} б')
 
-    def get_curr_val(self):
+    def _get_curr_val(self):
         memory_data = psutil.virtual_memory()
         return memory_data
 
-    def result_update(self):
-        self.memory_result.update(total_memory=self.get_curr_val().total,
-                                  available=self.get_curr_val().available,
-                                  percent=self.get_curr_val().percent,
-                                  free=self.get_curr_val().free)
+    def _result_update(self, getval):
+        self.memory_result.update(total_memory=getval.total,
+                                  available=getval.available,
+                                  percent=getval.percent,
+                                  free=getval.free)
 
     def get_data(self):
         Abstract.get_data(self)
@@ -86,15 +85,15 @@ class ProcessInfo(Abstract):
                         'статус процесса: {status} \n'
                         'время создания процесса: {create_time} мс')
 
-    def get_curr_val(self):
+    def _get_curr_val(self):
         process_data = psutil.Process()
         return process_data
 
-    def result_update(self):
-        self.process_result.update(name=self.get_curr_val().name(),
-                                   exe=self.get_curr_val().exe(),
-                                   status=self.get_curr_val().status(),
-                                   create_time=self.get_curr_val().create_time())
+    def _result_update(self, getval):
+        self.process_result.update(name=getval.name(),
+                                   exe=getval.exe(),
+                                   status=getval.status(),
+                                   create_time=getval.create_time())
 
     def get_data(self):
         Abstract.get_data(self)
@@ -111,15 +110,15 @@ class DiskInfo(Abstract):
                      'информация о свободной памяти диска: {free} б \n'
                      'использованная память в процентах: {percent}%')
 
-    def get_curr_val(self):
+    def _get_curr_val(self):
         disk_data = psutil.disk_usage('/')
         return disk_data
 
-    def result_update(self):
-        self.disk_result.update(total=float(self.get_curr_val().total),
-                                used=self.get_curr_val().used,
-                                free=self.get_curr_val().free,
-                                percent=self.get_curr_val().percent)
+    def _result_update(self, getval):
+        self.disk_result.update(total=float(getval.total),
+                                used=getval.used,
+                                free=getval.free,
+                                percent=getval.percent)
 
     def get_data(self):
         Abstract.get_data(self)
