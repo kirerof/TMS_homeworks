@@ -2,27 +2,29 @@ import psutil
 import json
 
 
-def decorator(func):
-    """Декоратор для записи результатов работы функций в отдельные файлы"""
-    def wrapper():
-        func_result = func()
+def parametrized_dec(file_name):
+    def decorator(func):
+        """Декоратор для записи результатов работы функций в отдельные файлы"""
+        def wrapper():
+            func_result = func()
 
-        try:
-            with open(f'{func.__name__}.json', 'r+') as file:
-                size = file.seek(0, 2)
-                file.seek(size - 2)
-                file.write(',\n')
-                json.dump(func_result, file, indent=2)
-                file.write('\n]')
-        except IOError:
-            with open(f'{func.__name__}.json', 'w') as file:
-                json.dump([func_result], file, indent=1)
+            try:
+                with open(file_name, 'r+') as file:
+                    size = file.seek(0, 2)
+                    file.seek(size - 2)
+                    file.write(',\n')
+                    json.dump(func_result, file, indent=2)
+                    file.write('\n]')
+            except IOError:
+                with open(file_name, 'w') as file:
+                    json.dump([func_result], file, indent=1)
 
-        return func_result
-    return wrapper
+            return func_result
+        return wrapper
+    return decorator
 
 
-@decorator
+@parametrized_dec('cpu_info.json')
 def cpu_info():
     result_cpu = {}
     freq_cpu = psutil.cpu_freq()
@@ -45,7 +47,7 @@ def cpu_info():
     return result_cpu
 
 
-@decorator
+@parametrized_dec('memory_info.json')
 def memory_info():
     memory_result = {}
     memory_data = psutil.virtual_memory()
@@ -57,7 +59,7 @@ def memory_info():
     return memory_result
 
 
-@decorator
+@parametrized_dec('process_info.json')
 def process_info():
     process_result = {}
     process_data = psutil.Process()
@@ -69,7 +71,7 @@ def process_info():
     return process_result
 
 
-@decorator
+@parametrized_dec('disk_info.json')
 def disk_info():
     disk_result = {}
     disk_data = psutil.disk_usage('/')
