@@ -12,28 +12,26 @@ class CpuInfo:
 
     def get_data(self):
         freq_cpu = psutil.cpu_freq()
-        CpuInfo.result_cpu.update(current_freq=freq_cpu.current)
+        self.result_cpu.update(current_freq=freq_cpu.current)
 
         count_cpu = psutil.cpu_count()
-        CpuInfo.result_cpu.update(count_cpu=count_cpu)
+        self.result_cpu.update(count_cpu=count_cpu)
 
         percent_cpu = psutil.cpu_percent(interval=1, percpu=True)
         even_cpu = {
             'cpu' + str(key): val for key in range(1, psutil.cpu_count(logical=True) + 1)
             for val in percent_cpu
         }
-        CpuInfo.result_cpu.update(even_cpu)
+        self.result_cpu.update(even_cpu)
 
         times_cpu = psutil.cpu_times()
-        CpuInfo.result_cpu.update(user_time=times_cpu.user,
-                                  system_time=times_cpu.system,
-                                  idle_time=times_cpu.idle)
-
-        return CpuInfo.result_cpu
+        self.result_cpu.update(user_time=times_cpu.user,
+                               system_time=times_cpu.system,
+                               idle_time=times_cpu.idle)
 
     def __str__(self):
         return 'Информация о процессоре: \n' +\
-               CpuInfo.cpu_template.format(**CpuInfo.result_cpu)
+               CpuInfo.cpu_template.format(**self.result_cpu)
 
 
 class MemoryInfo:
@@ -45,16 +43,14 @@ class MemoryInfo:
 
     def get_data(self):
         memory_data = psutil.virtual_memory()
-        MemoryInfo.memory_result.update(total_memory=memory_data.total,
-                                        available=memory_data.available,
-                                        percent=memory_data.percent,
-                                        free=memory_data.free)
-
-        return MemoryInfo.memory_result
+        self.memory_result.update(total_memory=memory_data.total,
+                                  available=memory_data.available,
+                                  percent=memory_data.percent,
+                                  free=memory_data.free)
 
     def __str__(self):
         return 'Информация о памяти: \n' + \
-               MemoryInfo.memory_template.format(**MemoryInfo.memory_result)
+               self.memory_template.format(**MemoryInfo.memory_result)
 
 
 class ProcessInfo:
@@ -66,16 +62,14 @@ class ProcessInfo:
 
     def get_data(self):
         process_data = psutil.Process()
-        ProcessInfo.process_result.update(name=process_data.name(),
-                                          exe=process_data.exe(),
-                                          status=process_data.status(),
-                                          create_time=process_data.create_time())
-
-        return ProcessInfo.process_result
+        self.process_result.update(name=process_data.name(),
+                                   exe=process_data.exe(),
+                                   status=process_data.status(),
+                                   create_time=process_data.create_time())
 
     def __str__(self):
         return 'Информация о процессах: \n' + \
-               ProcessInfo.process_template.format(**ProcessInfo.process_result)
+               self.process_template.format(**ProcessInfo.process_result)
 
 
 class DiskInfo:
@@ -87,16 +81,14 @@ class DiskInfo:
 
     def get_data(self):
         disk_data = psutil.disk_usage('/')
-        DiskInfo.disk_result.update(total=float(disk_data.total),
-                                    used=disk_data.used,
-                                    free=disk_data.free,
-                                    percent=disk_data.percent)
-
-        return DiskInfo.disk_result
+        self.disk_result.update(total=float(disk_data.total),
+                                used=disk_data.used,
+                                free=disk_data.free,
+                                percent=disk_data.percent)
 
     def __str__(self):
         return 'Информация о батарее: \n' + \
-               DiskInfo.disk_template.format(**DiskInfo.disk_result)
+               self.disk_template.format(**DiskInfo.disk_result)
 
 
 def main():
