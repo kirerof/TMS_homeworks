@@ -18,20 +18,13 @@ class Abstract(ABC):
 
 class CpuInfo(Abstract):
     result_cpu = {}
-    cpu_template = ('текущая частота процессора: {current_freq} Гц \n'
-                    'количество используемых процессоров: {count_cpu} \n'
-                    'проценты использования процессоров: {cpu1}%, {cpu2}%, {cpu3}% \n'
-                    'время, затрачиваемое процессами в пользовательском режиме: {user_time} с \n'
-                    'время, затрачиваемое процессами в режиме ядра: {system_time} с \n'
-                    'время простоя: {idle_time} с')
 
     def _get_curr_val(self):
         freq_cpu = psutil.cpu_freq()
         count_cpu = psutil.cpu_count()
-        percent_cpu = psutil.cpu_percent(interval=1, percpu=True)
         even_cpu = {
             'cpu' + str(key): val for key in range(1, psutil.cpu_count(logical=True) + 1)
-            for val in percent_cpu
+            for val in psutil.cpu_percent(interval=1, percpu=True)
         }
         times_cpu = psutil.cpu_times()
 
@@ -49,16 +42,18 @@ class CpuInfo(Abstract):
         Abstract.get_data(self)
 
     def __str__(self):
-        return 'Информация о процессоре: \n' +\
-               CpuInfo.cpu_template.format(**self.result_cpu)
+        return 'Информация о процессоре: \n' + \
+               ('текущая частота процессора: {current_freq} Гц \n'
+                'количество используемых процессоров: {count_cpu} \n'
+                'проценты использования процессоров: {cpu1}%, {cpu2}%, {cpu3}% \n'
+                'время, затрачиваемое процессами в пользовательском режиме: {user_time} с \n'
+                'время, затрачиваемое процессами в режиме ядра: {system_time} с \n'
+                'время простоя: {idle_time} с')\
+                .format(**self.result_cpu)
 
 
 class MemoryInfo(Abstract):
     memory_result = {}
-    memory_template = ('общая память: {total_memory} б \n'
-                       'доступная память: {available} б \n'
-                       'процент использования памяти:{percent}% \n'
-                       'свободная память: {free} б')
 
     def _get_curr_val(self):
         memory_data = psutil.virtual_memory()
@@ -75,15 +70,15 @@ class MemoryInfo(Abstract):
 
     def __str__(self):
         return 'Информация о памяти: \n' + \
-               self.memory_template.format(**MemoryInfo.memory_result)
+               ('общая память: {total_memory} б \n'
+                'доступная память: {available} б \n'
+                'процент использования памяти:{percent}% \n'
+                'свободная память: {free} б')\
+                .format(**MemoryInfo.memory_result)
 
 
 class ProcessInfo(Abstract):
     process_result = {}
-    process_template = ('имя процесса: {name} \n'
-                        'путь к исполняемому файлу: {exe} \n'
-                        'статус процесса: {status} \n'
-                        'время создания процесса: {create_time} мс')
 
     def _get_curr_val(self):
         process_data = psutil.Process()
@@ -100,15 +95,15 @@ class ProcessInfo(Abstract):
 
     def __str__(self):
         return 'Информация о процессах: \n' + \
-               self.process_template.format(**ProcessInfo.process_result)
+               ('имя процесса: {name} \n'
+                'путь к исполняемому файлу: {exe} \n'
+                'статус процесса: {status} \n'
+                'время создания процесса: {create_time} мс')\
+                .format(**ProcessInfo.process_result)
 
 
 class DiskInfo(Abstract):
     disk_result = {}
-    disk_template = ('информация об общей памяти диска: {total} б \n'
-                     'информация об использованной памяти диска: {used} б \n'
-                     'информация о свободной памяти диска: {free} б \n'
-                     'использованная память в процентах: {percent}%')
 
     def _get_curr_val(self):
         disk_data = psutil.disk_usage('/')
@@ -125,22 +120,23 @@ class DiskInfo(Abstract):
 
     def __str__(self):
         return 'Информация о батарее: \n' + \
-               self.disk_template.format(**DiskInfo.disk_result)
+               ('информация об общей памяти диска: {total} б \n'
+                'информация об использованной памяти диска: {used} б \n'
+                'информация о свободной памяти диска: {free} б \n'
+                'использованная память в процентах: {percent}%')\
+                .format(**DiskInfo.disk_result)
 
 
 def main():
     cpu = CpuInfo()
     cpu.get_data()
-    print(cpu)
-    print()
+    print(cpu, '\n')
     memory = MemoryInfo()
     memory.get_data()
-    print(memory)
-    print()
+    print(memory, '\n')
     process = ProcessInfo()
     process.get_data()
-    print(process)
-    print()
+    print(process, '\n')
     disk = DiskInfo()
     disk.get_data()
     print(disk)
